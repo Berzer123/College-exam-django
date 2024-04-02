@@ -26,16 +26,17 @@
 Создайте файл forms.py в вашем приложении и определите форму регистрации:
 
 # forms.py
+~~~
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
-
     class Meta:
         model = User
         fields = ["username", "email", "password1", "password2"]
+~~~
 
 
 ### Шаг 2: Создание представления
@@ -43,6 +44,7 @@ class RegisterForm(UserCreationForm):
 Создайте представление для регистрации в файле views.py:
 
 # views.py
+~~~
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegisterForm
@@ -57,6 +59,7 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
+~~~
 
 
 ### Шаг 3: Добавление маршрута URL
@@ -64,6 +67,7 @@ def register(request):
 Обновите файл urls.py вашего приложения, чтобы добавить новый маршрут:
 
 # urls.py
+~~~
 from django.urls import path
 from .views import register
 
@@ -71,12 +75,13 @@ urlpatterns = [
     # ... другие URL-адреса ...
     path('register/', register, name='register'),
 ]
-
+~~~
 
 ### Шаг 4: Создание шаблона HTML
 
 Создайте шаблон register.html в директории шаблонов вашего приложения:
 
+~~~
 <!-- register.html -->
 {% extends 'base.html' %} <!-- Унаследуйте базовый шаблон, если таковой имеется -->
 
@@ -88,6 +93,7 @@ urlpatterns = [
   <button type="submit">Register</button>
 </form>
 {% endblock %}
+~~~
 
 
 Включите {% csrf_token %} в вашу форму для защиты от атак межсайтовой подделки запроса.
