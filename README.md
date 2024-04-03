@@ -112,3 +112,97 @@ python manage.py migrate
 
 Это базовая регистрация. Вы можете настроить её, добавив дополнительные поля, валидацию, сообщения об ошибках и логику аутентификации, в зависимости от вашего проекта.
 Любая регистрационная система должна обеспечивать безопасность данных пользователя и гладкий процесс взаимодействия. Используйте UserCreationForm в качестве отправной точки и настройте его под свои нужды, чтобы обеспечить, что ваша система соответствует требованиям и ожиданиям пользователей. Помните, что после того, как пользователь зарегистрирован, вам также может потребоваться предоставить функционал входа в систему (login) и выхода из системы (logout), чтобы завершить процесс управления учетными записями.
+
+
+### Авторизация пользователя и создание профиля
+
+Для создания системы авторизации на Django необходимо выполнить несколько шагов, используя встроенные средства Django для управления пользователями. Вот основные шаги для создания простой системы авторизации:
+
+1. Использование встроенных моделей и форм
+   Django предоставляет встроенную модель пользователя (User) и систему авторизации, а также формы для аутентификации, такие как AuthenticationForm.
+
+2. Настройка URL
+   Вам нужно настроить URL-адреса для входа, выхода и, если нужно, для регистрации пользователей. В urls.py вашего приложения добавьте следующие пути:
+~~~
+   from django.contrib.auth import views as auth_views
+   from django.urls import path
+   from . import views
+
+   urlpatterns = [
+       path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
+       path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+       # Если вы хотите создать страницу регистрации:
+       path('register/', views.register, name='register'),
+   ]
+~~~
+   
+
+3. Создание шаблонов
+   Создайте шаблоны HTML для страниц входа, выхода и регистрации. Для входа вы можете создать шаблон login.html, который будет использовать AuthenticationForm.
+   ~~~
+      <!-- users/login.html -->
+   <form method="post">
+       {% csrf_token %}
+       {{ form.as_p }}
+       <button type="submit">Войти</button>
+   </form>
+   ~~~
+   
+
+   Аналогично, для регистрации создайте свою форму или используйте UserCreationForm.
+
+5. Обработка представлений (views)
+   Если вы создаёте собственную страницу регистрации, вам следует создать представление для обработки данных формы:
+~~~
+   from django.contrib.auth.forms import UserCreationForm
+   from django.shortcuts import render, redirect
+
+   def register(request):
+       if request.method == 'POST':
+           form = UserCreationForm(request.POST)
+           if form.is_valid():
+               form.save()
+               return redirect('login')
+       else:
+           form = UserCreationForm()
+       return render(request, 'users/register.html', {'form': form})
+~~~
+   
+
+5. Подключение системы аутентификации
+   Убедитесь, что 'django.contrib.auth' включен в INSTALLED_APPS вашего файла settings.py. Также убедитесь, что у вас есть соответствующие настройки для управления сессиями пользователей:
+~~~
+      INSTALLED_APPS = [
+       ...
+       'django.contrib.auth',
+       'django.contrib.contenttypes',
+       'django.contrib.sessions',
+       ...
+   ]
+
+   MIDDLEWARE = [
+       ...
+       'django.contrib.sessions.middleware.SessionMiddleware',
+       'django.contrib.auth.middleware.AuthenticationMiddleware',
+       ...
+   ]
+~~~
+   
+
+7. Настройка перенаправления
+   В settings.py установите переменные для контроля перенаправления при входе и выходе:
+
+      LOGIN_REDIRECT_URL = 'home'  # Перенаправление после входа
+   LOGOUT_REDIRECT_URL = 'login'  # Перенаправление после выхода
+   
+
+   Здесь 'home' и 'login' — это имена URL-адресов, которые вы определяете в urls.py.
+
+8. Миграции базы данных
+   Проведите миграции, чтобы убедиться, что созданы все необходимые таблицы для аутентификации:
+
+      python manage.py migrate
+   
+
+Это базовая настройка системы аутентификации. Вы можете расширять и настраивать её, создавая собственные формы, модели и представления, в зависимости от требований вашего проекта.
+
