@@ -1,0 +1,73 @@
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+
+.logo img {
+    height: 50px;
+    width: 50px;
+}
+
+.menu {
+    margin: 0;
+    padding: 0;
+    background-color: rgba(4, 86, 79, 0.78);
+}
+
+.menu__inner {
+    padding: 7px 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+}
+
+.nav li {
+
+}
+
+.nav li a {
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 20px;
+
+}
+
+.nav li a:hover {
+    background-color: #2b8c67;
+      border-radius: 2px;
+      color: #f5f5f5;
+      text-decoration: none;
+}
+
+.btn-custom {
+  background-color: rgba(4, 86, 79, 0.78); /* Синий цвет */
+  color: #ffffff; /* Белый текст */
+  border-color: rgba(2, 38, 36, 0.78); /* Темно-синий цвет границы */
+}
+/* Для изменения цвета при наведении */
+.btn-custom:hover {
+  background-color: rgba(3, 56, 53, 0.78); /* Более темный синий цвет */
+  border-color: rgba(2, 38, 36, 0.78); /* Еще более темный синий цвет границы */
+}
+
+.btn-custom:active {
+    background-color: #123456; /* Цвет фона при нажатии */
+    color: #ffffff; /* Цвет текста при нажатии */
+    border-color: #123456; /* Цвет границы при нажатии */
+}
+

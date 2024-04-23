@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<!-- users/profile.html -->
+<h1>Профиль пользователя: {{ user.username }}</h1>
+<p><strong>Биография:</strong> {{ user.profile.bio }}</p>
+<p><strong>Местоположение:</strong> {{ user.profile.location }}</p>
+<p><strong>Дата рождения:</strong> {{ user.profile.birth_date|date:"d M Y" }}</p>
+<a href={%  url 'edit_profile' %}>Редактировать</a>
+<a href={%  url 'create_post' %}>Отправить нарушение</a>
+<a href={%  url 'logout' %}>Выйти</a>
+
+<!-- Другие поля... -->
+
+{% endblock %}
