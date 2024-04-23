@@ -193,18 +193,105 @@ python manage.py migrate
 
 7. Настройка перенаправления
    В settings.py установите переменные для контроля перенаправления при входе и выходе:
-
-      LOGIN_REDIRECT_URL = 'home'  # Перенаправление после входа
+~~~
+   LOGIN_REDIRECT_URL = 'home'  # Перенаправление после входа
    LOGOUT_REDIRECT_URL = 'login'  # Перенаправление после выхода
-   
+~~~
 
    Здесь 'home' и 'login' — это имена URL-адресов, которые вы определяете в urls.py.
 
 8. Миграции базы данных
    Проведите миграции, чтобы убедиться, что созданы все необходимые таблицы для аутентификации:
-
+~~~
       python manage.py migrate
+~~~
    
 
 Это базовая настройка системы аутентификации. Вы можете расширять и настраивать её, создавая собственные формы, модели и представления, в зависимости от требований вашего проекта.
 
+
+Отправка пользователем записи 
+Понял тебя, короче говоря, тебе нужна система модерации постов. Чтобы пользователь мог создавать посты, которые затем поступают на утверждение администратору. Вот базовые шаги, которые тебе предстоит сделать в Django:
+
+1. Настрой модель Post в models.py, добавь туда булево поле, например is_approved, с дефолтным значением False. Это поле будет указывать на то, одобрен пост или нет.
+~~~
+   from django.db import models
+   from django.contrib.auth.models import User
+
+    class Post(models.Model):
+        title = models.CharField(max_length=200)
+        content = models.TextField()
+        author = models.ForeignKey(User, on_delete=models.CASCADE)
+        is_approved = models.BooleanField(default=False)
+        # Другие поля, например дата создания
+        created_at = models.DateTimeField(auto_now_add=True)
+~~~
+    
+
+2. В admin.py зарегистрируй модель Post с кастомным ModelAdmin, в котором укажи, что отображать в админ-панели.
+~~~
+   from django.contrib import admin
+   from .models import Post
+
+    @admin.register(Post)
+    class PostAdmin(admin.ModelAdmin):
+        list_display = ('title', 'author', 'is_approved', 'created_at')
+        list_filter = ('is_approved', 'created_at')
+        search_fields = ('title', 'content')
+~~~
+
+3. Настрой views, чтобы пользователи могли через форму на сайте создавать посты. Не забудь проверить, что пользователь авторизован.
+~~~
+   from django.shortcuts import render, redirect
+   from .forms import PostForm
+   from .models import Post
+   from django.contrib.auth.decorators import login_required
+
+    @login_required
+    def create_post(request):
+        if request.method == 'POST':
+            form = PostForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.save()
+                return redirect('view_where_to_go_after_save')
+        else:
+            form = PostForm()
+        return render(request, 'create_post.html', {'form': form})
+~~~
+    
+
+4. В формах у тебя появится форма создания поста PostForm, которую ты напишешь в forms.py.
+~~~
+   from django import forms
+   from .models import Post
+
+    class PostForm(forms.ModelForm):
+        class Meta:
+            model = Post
+            fields = ['title', 'content']
+   ~~~ 
+
+5. Также тебе потребуется в шаблоне create_post.html отобразить форму для создания поста.
+~~~
+   <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Отправить на модерацию</button>
+    </form>
+~~~
+    
+
+6. Настрой URL, чтобы пользователи могли переходить на страницу создания поста.
+~~~   
+    from django.urls import path
+    from . import views
+
+    urlpatterns = [
+        path('create/', views.create_post, name='create_post'),
+        # Остальные пути.
+    ]
+~~~    
+
+Теперь, когда пользователь создает пост, он сохраняется с is_approved = False. Администратор в админ-панели может видеть все посты и изменять их статус на одобренный. Только одобренные посты стоит отображать на сайте.
